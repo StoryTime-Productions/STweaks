@@ -1,6 +1,7 @@
 package com.storytimeproductions.stweaks;
 
 import com.storytimeproductions.stweaks.commands.BiomeTrackerCommand;
+import com.storytimeproductions.stweaks.commands.QuestMenuCommand;
 import com.storytimeproductions.stweaks.commands.StBoostCommand;
 import com.storytimeproductions.stweaks.commands.StLobbyCommand;
 import com.storytimeproductions.stweaks.commands.StSpawnCommand;
@@ -13,10 +14,12 @@ import com.storytimeproductions.stweaks.listeners.FbiDiscListener;
 import com.storytimeproductions.stweaks.listeners.IllegalWaterListener;
 import com.storytimeproductions.stweaks.listeners.LebronArmorListener;
 import com.storytimeproductions.stweaks.listeners.PlayerActivityListener;
+import com.storytimeproductions.stweaks.listeners.QuestMenuListener;
 import com.storytimeproductions.stweaks.playtime.PlaytimeTracker;
 import com.storytimeproductions.stweaks.util.BiomeTrackerManager;
 import com.storytimeproductions.stweaks.util.BossBarManager;
 import com.storytimeproductions.stweaks.util.DbManager;
+import com.storytimeproductions.stweaks.util.QuestsManager;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
@@ -54,6 +57,8 @@ public class Stweaks extends JavaPlugin {
     EventManager.init(this);
     BossBarManager.init(this);
     BiomeTrackerManager trackerManager = new BiomeTrackerManager(dbManager, this);
+    QuestsManager questsManager = new QuestsManager(dbManager, this);
+    QuestMenuCommand questMenuCommand = new QuestMenuCommand(questsManager);
 
     // Register event listeners
     getServer().getPluginManager().registerEvents(new PlayerActivityListener(this), this);
@@ -62,6 +67,9 @@ public class Stweaks extends JavaPlugin {
     getServer().getPluginManager().registerEvents(new IllegalWaterListener(this), this);
     getServer().getPluginManager().registerEvents(new LebronArmorListener(this), this);
     getServer().getPluginManager().registerEvents(new BiomeNotifier(this, trackerManager), this);
+    getServer()
+        .getPluginManager()
+        .registerEvents(new QuestMenuListener(this, questsManager, questMenuCommand), this);
 
     // Register commands
     getCommand("ststatus").setExecutor(new StStatusCommand());
@@ -69,6 +77,7 @@ public class Stweaks extends JavaPlugin {
     getCommand("stlobby").setExecutor(new StLobbyCommand(getConfig()));
     getCommand("spawn").setExecutor(new StSpawnCommand(getConfig()));
     getCommand("biometracker").setExecutor(new BiomeTrackerCommand(trackerManager, this));
+    getCommand("stquests").setExecutor(questMenuCommand);
 
     getLogger().info("");
     getLogger().info("   _____ _                      _        ");
